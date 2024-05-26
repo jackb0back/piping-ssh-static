@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Piping SSH - vanilla web</title>
+    <link rel="icon" href="icon.png">
+  <script src="assets.js"></script>
+  <script>
+    b64DATA = "data:application/zip;base64," + b64DATA;
+  </script>
+<script src="https://cdn.jsdelivr.net/gh/yomotsu/ZipLoader@master/dist/zip-loader.min.js"></script>
+<script>
+
+// Intercepting XHR Requests
+const originalXhrOpen = window.XMLHttpRequest.prototype.open;
+window.XMLHttpRequest.prototype.open = function(method, url) {
+    // Add your interception logic here
+    url = url.split("?")[0]
+    console.log('XHR intercepted:' + url);
+   // if (Object.keys(_ASSETS).includes(url)) {
+     //   url = _ASSETS[url];
+    ///    console.log("has URL")
+   // }
+    return originalXhrOpen.apply(this, arguments);
+};
+
+const originalFetch = window.fetch;
+window.fetch = function(url, options) {
+    // Add your interception logic here
+    url = url.split("?")[0]
+    console.log('Fetch intercepted:' + url);
+
+    if (Object.keys(_asset_blobs).includes(url)) {
+        url = _asset_blobs[url];
+        console.log("has URL")
+    }
+
+    return originalFetch.apply(this, arguments);
+};
+
+    var _assets = new ZipLoader(b64DATA);
+    var _asset_blobs = {};
+
+    _assets.on('load', (event) => {
+        console.log("loaded asset zip");
+        console.log(_assets.files);
+        for (Element in _assets.files) {
+            console.log(Element);
+            _asset_blobs[Element] = _assets.extractAsBlobUrl(Element,'application/octet-stream');
+        }
+
+        var s1 = document.createElement("script");
+        var s2 = document.createElement("script");
+        s1.src = "js/app.a907ef1e.js";
+        s2.src = "js/chunk-vendors.c30379c0.js";
+
+        document.body.appendChild(s1);
+        document.body.appendChild(s2);
+
+    })
+
+    _assets.load();
+
+</script>
+    <link href="css/chunk-vendors.544d96b3.css" rel="stylesheet">
+    <link href="css/app.4af8347e.css" rel="stylesheet">
+  </head>
+  <body><noscript><strong>We're sorry but Piping SSH doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript>
+    <div id="app"></div>
+
+
+<style>
+  .xterm-helper-textarea {
+    position: fixed;
+    z-index: -1000;
+  }
+  .xterm-viewport {
+    display: none;
+  }
+  body {
+    background-color: #111;
+  }
+</style>
+
+  </body>
+</html>
